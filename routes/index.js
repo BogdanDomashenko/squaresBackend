@@ -26,6 +26,11 @@ router.get("/token", (req, res) => {
   res.send(req.session.token);
 });
 
+router.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.sendStatus(200);
+});
+
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
