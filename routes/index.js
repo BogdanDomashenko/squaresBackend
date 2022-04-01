@@ -8,49 +8,54 @@ const dotenv = require("dotenv");
 dotenv.config();
 process.env.TOKEN_SECRET;
 
-function generateAccessToken(email) {
-  return jwt.sign({ email }, process.env.TOKEN_SECRET, { expiresIn: "1800s" });
+function generateAccessToken(obj) {
+  return jwt.sign(obj, process.env.TOKEN_SECRET, { expiresIn: "5s" });
 }
 
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password)
-    res.status(411).send({ error: "email or password does not exist" });
+  !email && res.status(411).send({ error: "email does not exist" });
+  !password && res.status(411).send({ error: "password does not exist" });
 
   if (!validator.isEmail(email))
     res.status(406).send({ error: "incorrect email" });
 
-  //const token = md5(email);
-  const token = generateAccessToken({ email });
-  req.session.token = token;
-  res.json(token);
-  //res.send({ token });
+  if (email && password) {
+    const token = generateAccessToken({ email, password: md5(password) });
+    req.session.token = token;
+    res.json({ token });
+  }
 });
 
-router.get("/token", (req, res) => {
-  const token = req.session.token;
-
-  //if (token == null) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
-    console.log(err);
-
-    if (err) return res.sendStatus(401);
-
-    res.send(req.session.token);
-
-    next();
-  });
-});
-
-// OLD TOKEN
 // router.get("/token", (req, res) => {
-//   if (!req.session.token)
-//     res.status(401).send({ error: "user is not authorized" });
+//   const token = req.session.token;
 
-//   res.send(req.session.token);
+//   jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+//     if (err) return res.sendStatus(401);
+
+//     res.send(req.session.token);
+
+//     next();
+//   });
 // });
+
+router.post("/token", (req, res) => {
+  const { token } = req.body;
+
+  if (token) {
+    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+      if (err) return res.sendStatus(401);
+
+      const { email, password } = user;
+      //console.log("USER:", user);
+      //res.send(req.session.token);
+      return res.send({ token: generateAccessToken({ email, password }) });
+    });
+  } else {
+    res.status(411).send({ error: "token does not exist" });
+  }
+});
 
 router.get("/logout", (req, res) => {
   req.session.destroy();
