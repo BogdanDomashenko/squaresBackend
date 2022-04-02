@@ -9,7 +9,7 @@ dotenv.config();
 process.env.TOKEN_SECRET;
 
 function generateAccessToken(obj) {
-  return jwt.sign(obj, process.env.TOKEN_SECRET, { expiresIn: "5s" });
+  return jwt.sign(obj, process.env.TOKEN_SECRET, { expiresIn: "50s" });
 }
 
 router.post("/login", (req, res) => {
@@ -24,7 +24,8 @@ router.post("/login", (req, res) => {
   if (email && password) {
     const token = generateAccessToken({ email, password: md5(password) });
     req.session.token = token;
-    res.json({ token });
+    res.set("Authorization", token);
+    res.sendStatus(200);
   }
 });
 
@@ -50,7 +51,10 @@ router.post("/token", (req, res) => {
       const { email, password } = user;
       //console.log("USER:", user);
       //res.send(req.session.token);
-      return res.send({ token: generateAccessToken({ email, password }) });
+      const newToken = generateAccessToken({ email, password });
+
+      res.set("Authorization", newToken);
+      return res.sendStatus(200);
     });
   } else {
     res.status(411).send({ error: "token does not exist" });
