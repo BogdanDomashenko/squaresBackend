@@ -9,7 +9,7 @@ dotenv.config();
 process.env.TOKEN_SECRET;
 
 function generateAccessToken(obj) {
-  return jwt.sign(obj, process.env.TOKEN_SECRET, { expiresIn: "50s" });
+  return jwt.sign(obj, process.env.TOKEN_SECRET, { expiresIn: "10s" });
 }
 
 router.post("/login", (req, res) => {
