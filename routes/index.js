@@ -6,10 +6,13 @@ const jwt = require("jsonwebtoken");
 
 const dotenv = require("dotenv");
 dotenv.config();
-process.env.TOKEN_SECRET;
 
 function generateAccessToken(obj) {
-  return jwt.sign(obj, process.env.TOKEN_SECRET, { expiresIn: "10s" });
+  return jwt.sign(obj, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "5s" });
+}
+
+function generateRefreshToken(obj) {
+  return jwt.sign(obj, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "20s" });
 }
 
 router.post("/login", (req, res) => {
@@ -22,9 +25,12 @@ router.post("/login", (req, res) => {
     res.status(406).send({ error: "incorrect email" });
 
   if (email && password) {
-    const token = generateAccessToken({ email, password: md5(password) });
-    req.session.token = token;
-    res.set("Authorization", token);
+    const data = { email, password: md5(password) };
+    const accessToken = generateAccessToken(data);
+    const refreshToken = generateRefreshToken(data);
+
+    req.session.refreshToken = refreshToken;
+    res.set("Authorization", accessToken);
     res.sendStatus(200);
   }
 });
@@ -45,19 +51,43 @@ router.post("/token", (req, res) => {
   const { token } = req.body;
 
   if (token) {
-    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
-      if (err) return res.sendStatus(401);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) return res.status(401).send("access token not valid");
 
       const { email, password } = user;
       //console.log("USER:", user);
-      //res.send(req.session.token);
-      const newToken = generateAccessToken({ email, password });
+      return res.send(req.session.refreshToken);
+      //const newToken = generateAccessToken({ email, password });
 
-      res.set("Authorization", newToken);
-      return res.sendStatus(200);
+      //res.set("Authorization", newToken);
+      //return res.sendStatus(200);
     });
   } else {
     res.status(411).send({ error: "token does not exist" });
+  }
+});
+
+router.get("/refresh", (req, res) => {
+  if (req.session.refreshToken) {
+    jwt.verify(
+      req.session.refreshToken || " ",
+      process.env.REFRESH_TOKEN_SECRET,
+      (err, user) => {
+        if (err) return res.sendStatus(401);
+
+        const { email, password } = user;
+        const data = { email, password };
+
+        const accessToken = generateAccessToken(data);
+        const refreshToken = generateRefreshToken(data);
+
+        req.session.refreshToken = refreshToken;
+        res.set("Authorization", accessToken);
+        res.sendStatus(200);
+      }
+    );
+  } else {
+    res.status(401).send({ error: "token does not exist" });
   }
 });
 

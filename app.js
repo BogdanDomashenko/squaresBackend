@@ -14,8 +14,8 @@ var app = express();
 app.use(
   cors({
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: "Authorization",
+    allowedHeaders: ["Content-Type", "Authorization", "Access"],
+    exposedHeaders: ["Authorization", "Access"],
     origin: ["http://localhost:3000"],
   })
 );
@@ -38,7 +38,7 @@ app.use(
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
-    cookie: { path: "/", secure: false, httpOnly: true, maxAge: 10000 },
+    cookie: { path: "/", secure: false, httpOnly: true, maxAge: 30000 },
   })
 );
 
