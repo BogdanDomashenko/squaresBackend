@@ -48,19 +48,12 @@ router.post("/login", (req, res) => {
 // });
 
 router.post("/token", (req, res) => {
-  const { token } = req.body;
+  const { authorization } = req.headers;
 
-  if (token) {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+  if (authorization) {
+    jwt.verify(authorization, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) return res.status(401).send("access token not valid");
-
-      const { email, password } = user;
-      //console.log("USER:", user);
       return res.send(req.session.refreshToken);
-      //const newToken = generateAccessToken({ email, password });
-
-      //res.set("Authorization", newToken);
-      //return res.sendStatus(200);
     });
   } else {
     res.status(411).send({ error: "token does not exist" });
