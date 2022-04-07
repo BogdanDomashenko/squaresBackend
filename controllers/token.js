@@ -34,9 +34,9 @@ class token {
 
   refresh(req, res) {
     try {
-      if (req.session.refreshToken) {
+      if (req.cookies.refreshToken) {
         jwt.verify(
-          req.session.refreshToken || " ",
+          req.cookies.refreshToken || " ",
           process.env.REFRESH_TOKEN_SECRET,
           (err, user) => {
             if (err) return res.sendStatus(401);
@@ -47,7 +47,10 @@ class token {
             const accessToken = generateAccessToken(data);
             const refreshToken = generateRefreshToken(data);
 
-            req.session.refreshToken = refreshToken;
+            res.cookie("refreshToken", refreshToken, {
+              maxAge: 30000,
+              httpOnly: true,
+            });
             res.set("Authorization", accessToken);
             res.sendStatus(200);
           }

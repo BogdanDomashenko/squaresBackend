@@ -26,7 +26,10 @@ class auth {
         const accessToken = generateAccessToken(data);
         const refreshToken = generateRefreshToken(data);
 
-        req.session.refreshToken = refreshToken;
+        res.cookie("refreshToken", refreshToken, {
+          maxAge: 30000,
+          httpOnly: true,
+        });
         res.set("Authorization", accessToken);
         res.sendStatus(200);
       }
@@ -38,7 +41,7 @@ class auth {
 
   logout(req, res) {
     try {
-      req.session.destroy();
+      res.clearCookie("refreshToken");
       res.sendStatus(200);
     } catch (e) {
       console.log(e);
