@@ -1,13 +1,14 @@
 const md5 = require("md5");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 function generateAccessToken(obj) {
   return jwt.sign(obj, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "5s" });
 }
 
 function generateRefreshToken(obj) {
-  return jwt.sign(obj, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "20s" });
+  return jwt.sign(obj, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "10s" });
 }
 
 class auth {
@@ -15,13 +16,20 @@ class auth {
     try {
       const { email, password } = req.body;
 
-      !email && res.status(411).send({ error: "email does not exist" });
-      !password && res.status(411).send({ error: "password does not exist" });
-
+      if (!email)
+        return res.status(411).json({ message: "email does not exist" });
+      if (!password)
+        return res.status(411).json({ message: "password does not exist" });
       if (!validator.isEmail(email))
-        res.status(406).send({ error: "incorrect email" });
+        return res.status(406).json({ message: "incorrect email" });
 
-      if (email && password) {
+      const user = await User.findOne({ email });
+      if (!user)
+        return res
+          .status(400)
+          .json({ message: "User with this email does not exist" });
+
+      if (user.password === password) {
         const data = { email, password: md5(password) };
         const accessToken = generateAccessToken(data);
         const refreshToken = generateRefreshToken(data);
@@ -31,11 +39,17 @@ class auth {
           httpOnly: true,
         });
         res.set("Authorization", accessToken);
-        res.sendStatus(200);
+        return res.status(200).json({
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        });
+      } else {
+        return res.status(400).json({ message: "Incorrect password" });
       }
     } catch (e) {
       console.log(e);
-      res.status(400).json({ message: "Login error" });
+      return res.status(400).json({ message: "Login error" });
     }
   }
 

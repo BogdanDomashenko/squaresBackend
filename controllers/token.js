@@ -19,7 +19,7 @@ class token {
           process.env.ACCESS_TOKEN_SECRET,
           (err, user) => {
             if (err)
-              return res.status(401).json({ error: "Access token not valid" });
+              return res.status(400).json({ error: "Access token not valid" });
             return res.send(req.session.refreshToken);
           }
         );
@@ -34,6 +34,7 @@ class token {
 
   refresh(req, res) {
     try {
+      console.log(req.cookies.refreshToken);
       if (req.cookies.refreshToken) {
         jwt.verify(
           req.cookies.refreshToken || " ",
@@ -52,7 +53,7 @@ class token {
               httpOnly: true,
             });
             res.set("Authorization", accessToken);
-            res.sendStatus(200);
+            res.sendStatus(201);
           }
         );
       } else {

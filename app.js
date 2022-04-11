@@ -10,6 +10,10 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const tokenRouter = require("./routes/token");
+const userRouter = require("./routes/user");
+
+const mongoose = require("mongoose");
+const User = require("./models/User");
 
 const app = express();
 
@@ -22,10 +26,6 @@ app.use(
   })
 );
 
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
-// view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 
@@ -48,6 +48,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/token", tokenRouter);
+app.use("/user", userRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -63,5 +64,46 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+const start = async () => {
+  const seedUsers = [
+    {
+      username: "admin",
+      password: "abc1234;;",
+      email: "admin@gmail.com",
+      role: "admin",
+    },
+    {
+      username: "test",
+      password: "abc1234;;",
+      email: "djewjedje@gmail.com",
+      role: "user",
+    },
+    {
+      username: "ivan",
+      password: "abc1234;;",
+      email: "98w7dmqwdmm@gmail.com",
+      role: "user",
+    },
+    {
+      username: "bogdan",
+      password: "pass17snwj,,",
+      email: "djewjedje@gmail.com",
+      role: "user",
+    },
+  ];
+
+  try {
+    await mongoose.connect(
+      `mongodb+srv://cesar:qwerty123@cluster0.dwr99.mongodb.net/Booking?retryWrites=true&w=majority`
+    );
+    await User.deleteMany({});
+    await User.insertMany(seedUsers);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+start();
 
 module.exports = app;
