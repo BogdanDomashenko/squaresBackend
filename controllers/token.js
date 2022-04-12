@@ -34,7 +34,6 @@ class token {
 
   refresh(req, res) {
     try {
-      console.log(req.cookies.refreshToken);
       if (req.cookies.refreshToken) {
         jwt.verify(
           req.cookies.refreshToken || " ",

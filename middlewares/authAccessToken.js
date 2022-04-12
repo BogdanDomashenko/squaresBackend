@@ -11,6 +11,7 @@ function authAccessToken(req, res, next) {
         (err, user) => {
           if (err)
             return res.status(400).json({ error: "Access token not valid" });
+          res.locals.userEmail = user.email;
           next();
         }
       );
