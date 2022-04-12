@@ -1,12 +1,5 @@
 const jwt = require("jsonwebtoken");
-
-function generateAccessToken(obj) {
-  return jwt.sign(obj, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "5s" });
-}
-
-function generateRefreshToken(obj) {
-  return jwt.sign(obj, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "20s" });
-}
+const tokenUtil = require("../utils/token");
 
 class token {
   access(req, res) {
@@ -44,8 +37,8 @@ class token {
             const { email, password } = user;
             const data = { email, password };
 
-            const accessToken = generateAccessToken(data);
-            const refreshToken = generateRefreshToken(data);
+            const accessToken = tokenUtil.generateAccessToken(data);
+            const refreshToken = tokenUtil.generateRefreshToken(data);
 
             res.cookie("refreshToken", refreshToken, {
               maxAge: 30000,

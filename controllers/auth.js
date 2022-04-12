@@ -2,14 +2,7 @@ const md5 = require("md5");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-
-function generateAccessToken(obj) {
-  return jwt.sign(obj, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "5s" });
-}
-
-function generateRefreshToken(obj) {
-  return jwt.sign(obj, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "10s" });
-}
+const token = require("../utils/token");
 
 class auth {
   async login(req, res) {
@@ -31,8 +24,8 @@ class auth {
 
       if (user.password === password) {
         const data = { email, password: md5(password) };
-        const accessToken = generateAccessToken(data);
-        const refreshToken = generateRefreshToken(data);
+        const accessToken = token.generateAccessToken(data);
+        const refreshToken = token.generateRefreshToken(data);
 
         res.cookie("refreshToken", refreshToken, {
           maxAge: 30000,
