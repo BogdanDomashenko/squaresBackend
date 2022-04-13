@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   session({
-    secret: "keyboard cat",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { path: "/", secure: false, httpOnly: true, maxAge: 30000 },
@@ -94,9 +94,7 @@ const start = async () => {
   ];
 
   try {
-    await mongoose.connect(
-      `mongodb+srv://cesar:qwerty123@cluster0.dwr99.mongodb.net/Booking?retryWrites=true&w=majority`
-    );
+    await mongoose.connect(process.env.MONGO_DB);
     await User.deleteMany({});
     await User.insertMany(seedUsers);
   } catch (e) {

@@ -41,7 +41,7 @@ class token {
             const refreshToken = tokenUtil.generateRefreshToken(data);
 
             res.cookie("refreshToken", refreshToken, {
-              maxAge: 30000,
+              maxAge: 24 * 60 * 60 * 1000,
               httpOnly: true,
             });
             res.set("Authorization", accessToken);
