@@ -7,7 +7,6 @@ const session = require("express-session");
 const cors = require("cors");
 
 const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const tokenRouter = require("./routes/token");
 const userRouter = require("./routes/user");
@@ -45,7 +44,6 @@ app.use(
 );
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/token", tokenRouter);
 app.use("/user", userRouter);
@@ -66,37 +64,8 @@ app.use(function (err, req, res, next) {
 });
 
 const start = async () => {
-  const seedUsers = [
-    {
-      username: "admin",
-      password: "abc1234;;",
-      email: "admin@gmail.com",
-      role: "admin",
-    },
-    {
-      username: "test",
-      password: "abc1234;;",
-      email: "djewjedje@gmail.com",
-      role: "user",
-    },
-    {
-      username: "ivan",
-      password: "abc1234;;",
-      email: "98w7dmqwdmm@gmail.com",
-      role: "user",
-    },
-    {
-      username: "bogdan",
-      password: "pass17snwj,,",
-      email: "djewjedje@gmail.com",
-      role: "user",
-    },
-  ];
-
   try {
     await mongoose.connect(process.env.MONGO_DB);
-    await User.deleteMany({});
-    await User.insertMany(seedUsers);
   } catch (e) {
     console.log(e);
   }
