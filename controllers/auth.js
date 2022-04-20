@@ -18,7 +18,7 @@ function generatePassword() {
   );
 }
 
-class auth {
+class AutController {
   async signup(req, res) {
     try {
       const { email } = req.body;
@@ -41,6 +41,16 @@ class auth {
         username,
         password: hashPassword,
       });
+
+      const data = { email, password: hashPassword };
+      const accessToken = token.generateAccessToken(data);
+      const refreshToken = token.generateRefreshToken(data);
+
+      res.cookie("refreshToken", refreshToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
+      res.set("Authorization", accessToken);
 
       return res
         .status(200)
@@ -73,7 +83,7 @@ class auth {
         return res.status(400).json({ message: "Incorrect password" });
       }
 
-      const data = { email, password: md5(password) };
+      const data = { email, password: user.password };
       const accessToken = token.generateAccessToken(data);
       const refreshToken = token.generateRefreshToken(data);
 
@@ -104,4 +114,4 @@ class auth {
   }
 }
 
-module.exports = new auth();
+module.exports = new AutController();

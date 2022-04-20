@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const tokenUtil = require("../utils/token");
 
-class token {
+class TokenController {
   access(req, res) {
     try {
       const { authorization } = req.headers;
@@ -58,4 +58,4 @@ class token {
   }
 }
 
-module.exports = new token();
+module.exports = new TokenController();

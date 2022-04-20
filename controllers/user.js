@@ -1,6 +1,6 @@
 const User = require("../models/User");
 
-class user {
+class UserController {
   async data(req, res) {
     try {
       const user = await User.findOne({ email: res.locals.userEmail });
@@ -17,4 +17,4 @@ class user {
   }
 }
 
-module.exports = new user();
+module.exports = new UserController();
