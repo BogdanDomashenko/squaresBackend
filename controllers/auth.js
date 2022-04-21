@@ -18,6 +18,10 @@ function generatePassword() {
   );
 }
 
+function parseId(objId) {
+  return JSON.stringify(objId).split('"')[1];
+}
+
 class AutController {
   async signup(req, res) {
     try {
@@ -52,9 +56,13 @@ class AutController {
       });
       res.set("Authorization", accessToken);
 
-      return res
-        .status(200)
-        .json({ email, username, password, role: user.role });
+      return res.status(200).json({
+        id: parseId(user._id),
+        email,
+        username,
+        password,
+        role: user.role,
+      });
     } catch (e) {
       console.log(e);
       return res.status(400).json({ message: "Sign Up error" });
@@ -83,7 +91,10 @@ class AutController {
         return res.status(400).json({ message: "Incorrect password" });
       }
 
-      const data = { email, password: user.password };
+      const data = {
+        email,
+        password: user.password,
+      };
       const accessToken = token.generateAccessToken(data);
       const refreshToken = token.generateRefreshToken(data);
 
@@ -93,6 +104,7 @@ class AutController {
       });
       res.set("Authorization", accessToken);
       return res.status(200).json({
+        id: parseId(user._id),
         username: user.username,
         email: user.email,
         role: user.role,
