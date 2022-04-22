@@ -4,6 +4,7 @@ const User = require("../models/User");
 const token = require("../utils/token");
 const generator = require("generate-password");
 const bcrypt = require("bcrypt");
+const idUtil = require("../utils/idUtil");
 
 function generatePassword() {
   return (
@@ -16,10 +17,6 @@ function generatePassword() {
       symbols: 2,
     })
   );
-}
-
-function parseId(objId) {
-  return JSON.stringify(objId).split('"')[1];
 }
 
 class AutController {
@@ -57,7 +54,7 @@ class AutController {
       res.set("Authorization", accessToken);
 
       return res.status(200).json({
-        id: parseId(user._id),
+        id: idUtil.parse(user._id),
         email,
         username,
         password,
@@ -104,7 +101,7 @@ class AutController {
       });
       res.set("Authorization", accessToken);
       return res.status(200).json({
-        id: parseId(user._id),
+        id: idUtil.parse(user._id),
         username: user.username,
         email: user.email,
         role: user.role,

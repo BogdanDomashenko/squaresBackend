@@ -10,6 +10,7 @@ const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
 const tokenRouter = require("./routes/token");
 const userRouter = require("./routes/user");
+const usersRouter = require("./routes/users");
 
 const mongoose = require("mongoose");
 const User = require("./models/User");
@@ -47,6 +48,7 @@ app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/token", tokenRouter);
 app.use("/user", userRouter);
+app.use("/users", usersRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

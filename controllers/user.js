@@ -1,11 +1,13 @@
-const User = require("../models/User");
+const idUtil = require("../utils/idUtil");
+const UserModel = require("../models/User");
 
 class UserController {
   async data(req, res) {
     try {
-      const user = await User.findOne({ email: res.locals.userEmail });
+      const user = await UserModel.findOne({ email: res.locals.userEmail });
 
       return res.status(200).json({
+        id: idUtil.parse(user.id),
         username: user.username,
         email: user.email,
         role: user.role,
